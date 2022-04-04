@@ -5,14 +5,24 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Revit_API_7_1"
              mc:Ignorable="d" 
-             Height="200" Width="300" MinHeight="200" MinWidth="300"
+             Height="300" Width="300" MinHeight="300" MinWidth="300"
              WindowStartupLocation="CenterScreen"
              Title="Создание листов">
     <StackPanel Margin="5">
         <Label Content="Основная надпись"/>
-        <ComboBox ItemsSource="{Binding ProjectTitleBlocks}" SelectedValue="{Binding SelectedTitleBlock}" DisplayMemberPath="Name" Margin="0,0,0,20"/>
+        <ComboBox ItemsSource="{Binding ProjectTitleBlocks}" SelectedValue="{Binding SelectedTitleBlock}" 
+                  DisplayMemberPath="Name" Margin="0,0,0,8" SelectedItem="{Binding ProjectTitleBlocks[0]}"/>
+ 
         <Label Content="Количество листов"/>
-        <TextBox Text="{Binding SheetQTY}" Margin="0,0,0,20"/>
-        <Button Content="   Создать листы   " HorizontalAlignment="Center" Command="{Binding CreateCommand}"/>
+        <TextBox Text="{Binding SheetQTY}" Margin="0,0,0,8" />
+        
+        <Label Content="Вид"/>
+        <ComboBox ItemsSource="{Binding ProjectViews}" SelectedValue="{Binding SelectedView}" 
+                  DisplayMemberPath="Name" Margin="0,0,0,8" SelectedItem="{Binding ProjectViews[0]}"/>
+
+        <Label Content="Разработал"/>
+        <TextBox Text="{Binding DesignedBy}" Margin="0,0,0,12" />
+
+        <Button Content="   Создать лист   " HorizontalAlignment="Center" Command="{Binding CreateCommand}"/>
     </StackPanel>
 </Window>

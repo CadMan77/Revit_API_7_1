@@ -20,6 +20,9 @@ namespace Revit_API_7_1
         public List<FamilySymbol> ProjectTitleBlocks { get; } = new List<FamilySymbol>();
         public FamilySymbol SelectedTitleBlock { get; set; }
 
+        public List<View> ProjectViews { get; } = new List<View>();
+        public View SelectedView { get; set; }
+
         public DelegateCommand CreateCommand { get; }
 
         static readonly string posIntMask = @"^\d+$";
@@ -38,6 +41,8 @@ namespace Revit_API_7_1
             }
         }
 
+        public string DesignedBy { get; set; }
+
         public MainViewViewModel(ExternalCommandData commandData)
         {
             _commandData = commandData;
@@ -50,10 +55,21 @@ namespace Revit_API_7_1
                 .WhereElementIsElementType()
                 .OfCategory(BuiltInCategory.OST_TitleBlocks)
                 .Cast<FamilySymbol>()
-                .ToList(); // ???
+                .ToList();
 
             ProjectTitleBlocks = projectTitleBlocks;
 
+            SheetQTY = 1;
+
+            List<View> projectViews = new FilteredElementCollector(doc)
+                .WhereElementIsNotElementType()
+                .OfCategory(BuiltInCategory.OST_Views)
+                .Cast<View>()
+                .ToList();
+
+            ProjectViews = projectViews;
+
+            DesignedBy = "Смирнов";
         }
         public EventHandler CloseRequest;
 
@@ -62,14 +78,33 @@ namespace Revit_API_7_1
             if (SelectedTitleBlock == null || sheetQTY < 1)
                 return;
 
-            using (Transaction ts = new Transaction(doc, "Sheet  Transaction"))
+            for (int i = 0; i < sheetQTY; i++)
             {
+                ViewSheet sheet = null;
+                using (Transaction ts = new Transaction(doc, "Sheet Create Transaction"))
+                {
+
                 ts.Start();
 
-                for (int i = 0; i < sheetQTY; i++)
-                    ViewSheet.Create(doc, SelectedTitleBlock.Id);
+                    sheet = ViewSheet.Create(doc, SelectedTitleBlock.Id);
+
+                    //sheet.get_Parameter(BuiltInParameter.SHEET_DRAWN_BY).Set(DesignedBy);
+                    sheet.get_Parameter(BuiltInParameter.SHEET_DESIGNED_BY).Set(DesignedBy);
+
+                    XYZ sheetCenterPoint = new XYZ(370/304.8, 300/304.8, 0);
+
+                    //Parameter param = sheet.get_Parameter(BuiltInParameter.SHEET_WIDTH); // ?? https://thebuildingcoder.typepad.com/blog/2010/05/determine-sheet-size.html
+
+                    //Viewport.Create(doc, sheet.Id, SelectedView.Id, sheetCenterPoint);
+
+                    ElementId newViewId = SelectedView.Duplicate(ViewDuplicateOption.Duplicate); 
+                    Viewport.Create(doc, sheet.Id, newViewId, sheetCenterPoint);
 
                 ts.Commit();
+
+                //uidoc.ActiveView = View(newViewId);
+
+                }
             }
             RaiseCloseRequest();
         }
