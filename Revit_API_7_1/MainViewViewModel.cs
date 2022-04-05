@@ -91,11 +91,20 @@ namespace Revit_API_7_1
                     //sheet.get_Parameter(BuiltInParameter.SHEET_DRAWN_BY).Set(DesignedBy);
                     sheet.get_Parameter(BuiltInParameter.SHEET_DESIGNED_BY).Set(DesignedBy);
 
-                    XYZ sheetCenterPoint = new XYZ(370/304.8, 300/304.8, 0);
+                    //XYZ sheetCenterPoint = new XYZ(370/304.8, 300/304.8, 0);
 
                     //Parameter param = sheet.get_Parameter(BuiltInParameter.SHEET_WIDTH); // ?? https://thebuildingcoder.typepad.com/blog/2010/05/determine-sheet-size.html
 
-                    //Viewport.Create(doc, sheet.Id, SelectedView.Id, sheetCenterPoint);
+                    Element titleBlock = doc.GetElement(new FilteredElementCollector(doc, sheet.Id)
+                        .OfCategory(BuiltInCategory.OST_TitleBlocks)
+                        .FirstElementId());
+
+                    double sheetWidth = titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH).AsDouble();
+                    double sheetHeight = titleBlock.get_Parameter(BuiltInParameter.SHEET_HEIGHT).AsDouble();
+
+                    XYZ sheetCenterPoint = new XYZ(sheetWidth/2, sheetHeight/2, 0);
+
+                    //Viewport.Create(doc, sheet.Id, SelectedView.Id, sheetCenterPoint); // вид можно разместить только на одном листе
 
                     ElementId newViewId = SelectedView.Duplicate(ViewDuplicateOption.Duplicate); 
                     Viewport.Create(doc, sheet.Id, newViewId, sheetCenterPoint);

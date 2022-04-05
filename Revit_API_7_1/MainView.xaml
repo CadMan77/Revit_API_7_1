@@ -23,6 +23,6 @@
         <Label Content="Разработал"/>
         <TextBox Text="{Binding DesignedBy}" Margin="0,0,0,12" />
 
-        <Button Content="   Создать лист   " HorizontalAlignment="Center" Command="{Binding CreateCommand}"/>
+        <Button Content="   Создать лист(ы)   " HorizontalAlignment="Center" Command="{Binding CreateCommand}" IsDefault="True"/>
     </StackPanel>
 </Window>
